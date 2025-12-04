@@ -1,0 +1,3 @@
+Flask // to run on powershell : python server.py
+flask-cors
+openai  // demanding money, bhikari api sala
