@@ -15,7 +15,7 @@ padding: 0;
 }
 
 .bot-box{
-    position: fixed; /* fixed so it doesn't move on scroll */
+    position: fixed;
     display: flex;
     flex-direction: column;
     top: 30%;
@@ -87,7 +87,6 @@ padding: 0;
     cursor: pointer;
 }
 
-/* New wrapper and positioning for button inside rounded input */
 .input-wrapper{
     position: relative;
     display: flex;
@@ -96,7 +95,7 @@ padding: 0;
 }
 
 .bot-input{
-    padding-right: 48px; /* space for the button */
+    padding-right: 48px;
 }
 
 .bot-send{
@@ -120,7 +119,6 @@ padding: 0;
     color: #fff;
 }
 
-/* Floating chat toggle button */
 .chat-toggle{
     position: fixed;
     right: 20px;
@@ -141,12 +139,10 @@ padding: 0;
 
 .chat-toggle svg{display:block; color: #fff}
 
-/* When chat is open, slightly hide toggle (optional visual) */
 .chat-toggle[aria-expanded="true"]{
     transform: scale(0.96);
 }
 
-/* Messages area */
 .bot-messages{
     padding: 12px;
     box-sizing: border-box;
