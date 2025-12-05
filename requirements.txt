@@ -1,3 +1,4 @@
-Flask // to run on powershell : python server.py
+Flask
 flask-cors
-openai  // demanding money, bhikari api sala
+google-generativeai
+python-dotenv

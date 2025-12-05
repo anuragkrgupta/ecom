@@ -1,7 +1,7 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from dotenv import load_dotenv
-from openai import OpenAI
+import google.generativeai as genai
 import os
 
 # Load .env file
@@ -10,52 +10,63 @@ load_dotenv()
 app = Flask(__name__)
 CORS(app)
 
-# Read OpenAI API key and model from environment variables
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-OPENAI_MODEL = os.getenv("OPENAI_MODEL", "gpt-4.1-mini")
+# Read Google AI API key and model from environment variables
+GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
+GOOGLE_MODEL = os.getenv("GOOGLE_MODEL", "gemini-2.5-flash")
 
-if not OPENAI_API_KEY:
-    raise RuntimeError("OPENAI_API_KEY is not set in the environment or .env file")
+if not GOOGLE_API_KEY:
+    print("⚠️  WARNING: GOOGLE_API_KEY is not set!")
+    print("   Please set it via:")
+    print("   1. Environment variable: $env:GOOGLE_API_KEY = 'your-key'")
+    print("   2. Or create a .env file with GOOGLE_API_KEY=your-key")
+    print("   3. See .env.example for reference")
+    # Don't crash immediately; let the endpoint return an error instead
+    # raise RuntimeError("GOOGLE_API_KEY is not set in the environment or .env file")
 
-# Create OpenAI client
-client = OpenAI(api_key=OPENAI_API_KEY)
+# Configure Google Generative AI only if key is available
+if GOOGLE_API_KEY:
+    genai.configure(api_key=GOOGLE_API_KEY)
+
+# Global chat session for conversation context
+chat_session = None
 
 
 @app.route("/message", methods=["POST"])
 def message():
+    global chat_session
     data = request.get_json(silent=True) or {}
     user_text = data.get("message", "").strip()
     system_prompt = data.get("system", "You are a helpful assistant.")
-    history = data.get("history")  # optional list of {role, content}
 
     if not user_text:
         return jsonify({"error": "No message provided."}), 400
 
-    # Build messages for Chat API
-    messages = [{"role": "system", "content": system_prompt}]
-
-    if isinstance(history, list):
-        for item in history:
-            if "role" in item and "content" in item:
-                messages.append({"role": item["role"], "content": item["content"]})
-
-    messages.append({"role": "user", "content": user_text})
-
     try:
-        resp = client.chat.completions.create(
-            model=OPENAI_MODEL,
-            messages=messages,
-            max_tokens=600,
-            temperature=0.7,
-        )
+        # Initialize model and chat session on first use
+        if chat_session is None:
+            model = genai.GenerativeModel(
+                model_name=GOOGLE_MODEL,
+                system_instruction=system_prompt
+            )
+            chat_session = model.start_chat(history=[])
 
-        reply = resp.choices[0].message.content.strip()
+        # Send message and get response
+        response = chat_session.send_message(user_text)
+        reply = response.text.strip()
         return jsonify({"reply": reply})
 
     except Exception as e:
         # Good for debugging in development
-        print("Error from OpenAI:", e)
+        print("Error from Google AI:", e)
         return jsonify({"error": str(e)}), 500
+
+
+@app.route("/reset", methods=["POST"])
+def reset_chat():
+    """Reset the chat session (clear conversation history)"""
+    global chat_session
+    chat_session = None
+    return jsonify({"status": "Chat reset."})
 
 
 if __name__ == "__main__":
