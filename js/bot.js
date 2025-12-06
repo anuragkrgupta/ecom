@@ -1,5 +1,4 @@
-// 🔹 1. System prompt: customize your bot's behavior here
-// Example: only talk about recipes and ingredients
+//  1. System prompt: customize your bot's behavior here
 const SYSTEM_PROMPT = `
 You are a chatbot for a grocery website.
 Your ONLY job is:
@@ -12,7 +11,7 @@ When refusing, say: "I can only help with recipes and groceries on this website.
 Keep answers short and friendly.
 `;
 
-// 🔹 2. Conversation history for backend (completed turns only)
+
 let history = [];
 
 // ------------- Chat input + sending logic -------------
@@ -71,7 +70,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         const replyText = data.reply || '(no reply)';
                         appendMessage('bot', replyText);
 
-                        // 🔹 Update history AFTER successful response
+                        // Update history AFTER successful response
                         history.push({ role: 'user', content: val });
                         history.push({ role: 'assistant', content: replyText });
                     } else {
@@ -79,7 +78,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     }
                 } catch (err) {
                     // Fallback when backend is not running / network error
-                    appendMessage('bot', '(network error) ' + err.message + ' — falling back to local reply');
+                    appendMessage('bot', '(network error) ' + err.message + ' — falling back to local reply because your server is not responding');
                     setTimeout(function () {
                         appendMessage('bot', 'You said: ' + val);
                     }, 500);
@@ -166,7 +165,7 @@ function appendMessage(who, text) {
     container.scrollTop = container.scrollHeight;
 }
 
-// For testing (Node / bundlers)
+// For testing
 if (typeof module !== 'undefined') {
     module.exports = {};
 }
