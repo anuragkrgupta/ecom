@@ -20,8 +20,6 @@ if not GOOGLE_API_KEY:
     print("   1. Environment variable: $env:GOOGLE_API_KEY = 'your-key'")
     print("   2. Or create a .env file with GOOGLE_API_KEY=your-key")
     print("   3. See .env.example for reference")
-    # Don't crash immediately; let the endpoint return an error instead
-    # raise RuntimeError("GOOGLE_API_KEY is not set in the environment or .env file")
 
 # Configure Google Generative AI only if key is available
 if GOOGLE_API_KEY:

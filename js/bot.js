@@ -158,12 +158,15 @@ function appendMessage(who, text) {
 
     const div = document.createElement('div');
     div.className = 'msg ' + (who === 'user' ? 'user' : 'bot');
-    div.textContent = text;
-    container.appendChild(div);
 
-    // Auto-scroll to bottom
+    // Preserve newlines and long lines, but keep HTML escaped (safe)
+    div.style.whiteSpace = 'pre-wrap'; // <-- this makes \n render as line breaks
+    div.textContent = text;
+
+    container.appendChild(div);
     container.scrollTop = container.scrollHeight;
 }
+
 
 // For testing
 if (typeof module !== 'undefined') {
