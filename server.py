@@ -195,50 +195,6 @@ def message():
         print("Error from Google AI:", e)
         return jsonify({"error": str(e)}), 500
 
-    # optional: frontend may send short history; we won't rely on it for persistent session here
-    request_history = data.get("history", None)
-
-    if not user_text:
-        return jsonify({"error": "No message provided."}), 400
-
-    try:
-        # Initialize model and chat session on first use
-        if chat_session is None:
-            model_kwargs = {"model_name": GOOGLE_MODEL, "system_instruction": system_prompt}
-            model = genai.GenerativeModel(**model_kwargs)
-            # If frontend provided history, try to pass it when starting session (best-effort)
-            try:
-                initial_history = request_history if isinstance(request_history, list) else []
-                chat_session = model.start_chat(history=initial_history)
-            except Exception:
-                # Fallback: start chat with empty history
-                chat_session = model.start_chat(history=[])
-
-        # Send message and get response from Gemini
-        response = chat_session.send_message(user_text)
-        reply = (response.text or "").strip()
-
-        # Attempt to find a relevant YouTube video (non-fatal)
-        youtube_result = None
-        try:
-            # Use user's message as the primary query, append "recipe" to improve results
-            query = user_text + " recipe"
-            youtube_result = youtube_top_video(query, YOUTUBE_API_KEY)
-        except Exception as yterr:
-            # non-fatal: log and continue
-            print("YouTube lookup failed:", yterr)
-            youtube_result = None
-
-        return jsonify({
-            "reply": reply,
-            "youtube": youtube_result  # dict or null
-        })
-
-    except Exception as e:
-        # Helpful debug message in development; keep generic enough for production
-        print("Error from Google AI:", e)
-        return jsonify({"error": str(e)}), 500
-
 
 @app.route("/reset", methods=["POST"])
 def reset_chat():
